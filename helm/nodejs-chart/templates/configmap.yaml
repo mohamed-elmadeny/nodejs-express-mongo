@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-conf
+  labels:
+      tier: {{ .Values.appName }}-app
+      service: {{ .Values.appName }}-service
+data:
+  MONGODB_URI: mongodb://{{ .Values.global.dbService }}-service:27017/node_db
+  NODE_ENV: {{ .Values.data.ENV }}
+  SECRET: {{ .Values.data.SECRET }}

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: {{ .Values.appName }}-service
+    tier: {{ .Values.appName }}-app
+  name: {{ .Values.appName }}-deployment
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      service: {{ .Values.appName }}-service
+      tier: {{ .Values.appName }}-app
+
+  template:
+    metadata:
+      labels:
+        service: {{ .Values.appName }}-service
+        tier: {{ .Values.appName }}-app
+    spec:
+# wait for the DB  Service to run first.
+      initContainers:
+      - name: init-wait-db
+        image: alpine
+        command: ["/bin/sh", "-c", "for i in $(seq 1 300); do nc -zvw1 '{{ .Values.global.dbService }}-service' 27017 && exit 0 || sleep 3; done; exit 1"]
+      containers:
+        - image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          name: {{ .Values.image.name }}
+          ports:
+            - containerPort:  {{ .Values.service.port }}
+          volumeMounts:
+            - mountPath: /nodejs
+              name: nodejs
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.appName }}-conf
+      volumes:
+        - name: {{ .Values.appName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.appName }}

@@ -1,0 +1,8 @@
+appName: mongodb
+replicas: 1
+image:
+  name: mongodb
+  repository: mongo
+  tag: latest
+service:
+  port: 27017

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    tier: db
+    service: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: db
+      service: mongo
+  template:
+    metadata:
+      name: mongodb
+      labels:
+        tier: db
+        service: mongo
+    spec:
+      containers:
+        - image: mongo
+          name: mongo
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongodb
+      volumes:
+        - name: mongodb
+          persistentVolumeClaim:
+            claimName: mongodb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    service: mongodb
+spec:
+  ports:
+   - port: 27017
+  selector:
+   service: mongo

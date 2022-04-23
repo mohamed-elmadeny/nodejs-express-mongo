@@ -1,0 +1,23 @@
+version: '3'
+services:
+  node:
+    restart: always
+    build:
+       context: .
+    ports:
+      - 3000:3000
+    volumes:
+      - nodejs:/code
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/node_db
+      NODE_ENV: production
+      SECRET: c494aab3-af14-4797-86cc-78a2307e999f
+  mongo:
+    image: mongo
+    volumes:
+      - mongodb:/data/db
+volumes:
+ mongodb:
+ nodejs:
